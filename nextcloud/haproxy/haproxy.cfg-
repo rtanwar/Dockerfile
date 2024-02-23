@@ -1,0 +1,125 @@
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    # to have these messages end up in /var/log/haproxy.log you will
+    # need to:
+    #
+    # 1) configure syslog to accept network log events.  This is done
+    #    by adding the '-r' option to the SYSLOGD_OPTIONS in
+    #    /etc/sysconfig/syslog
+    #
+    # 2) configure local2 events to go to the /var/log/haproxy.log
+    #   file. A line like the following can be added to
+    #   /etc/sysconfig/syslog
+    #
+    #    local2.*                       /var/log/haproxy.log
+    #
+    log         127.0.0.1 local2
+
+#    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    daemon
+#    maxconn     2400
+    maxconn     240
+    # turn on stats unix socket
+    tune.ssl.default-dh-param 4096
+#    stats socket /var/lib/haproxy/stats
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    120s
+    timeout queue           1m
+    timeout connect         120s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 240
+    #maxconn                 2400
+
+
+#---------------------------------------------------------------------
+# main frontend which proxys to the backends
+#---------------------------------------------------------------------
+#defaults WEB
+#        mode tcp
+#        timeout connect 3s
+#        timeout server 6s
+#        timeout client 6s
+
+# Specifies listening socket for accepting client connections using the default
+# REDIS TCP timeout and backend bk_redis TCP health check.
+#frontend HA_101
+#        bind 10.60.12.153:80
+#        default_backend HA_101
+
+# Specifies the backend Redis proxy server TCP health settings
+# Ensure it only forward incoming connections to reach a master.
+#backend HA_101
+#        option tcp-check
+#        tcp-check connect
+#        tcp-check send PING\r\n
+#        tcp-check expect string +PONG
+#        tcp-check send info\ replication\r\n
+#       tcp-check expect string role:master
+#       tcp-check send QUIT\r\n
+#       tcp-check expect string +OK
+#       mode http
+#       balance static-rr
+#        appsession JSESSIONID len 52 timeout 30m request-learn prefix
+listen ha 
+   bind 0.0.0.0:80
+   bind 0.0.0.0:443 ssl crt /usr/local/etc/haproxy/tmp.crt
+   redirect scheme https if !{ ssl_fc }
+   mode http
+   stats enable
+   balance roundrobin
+   option forwardfor
+  timeout tunnel 3600s
+#   option httpchk
+   option http-server-close
+   cookie JSESSIONID prefix nocache
+
+#additional capture for logging
+#capture request header X-Forwarded-For len 64
+#capture request header Content-Length len 10
+#capture request header Referer len 50
+#capture request header User-Agent len 100
+#capture cookie JSESSIONID len 75
+
+ #  capture request header X-Forwarded-For len 50
+ #  http-request capture hdr(X-Forwarded-For) len 50
+
+  #Added for application redirection - 18082017
+#    http-request redirect location /epfo/ if { path / } { ssl_fc }
+
+
+
+
+   #server php1 192.168.10.4:80 check inter 1s cookie php maxconn 1200
+   server app1 192.168.10.104:80 check inter 1s maxconn 1200
+   #server app1 10.70.1.111:8080 check inter 1s cookie php maxconn 1200
+   #server php php:80 check inter 1s cookie php maxconn 1200
+#   server web_101_02 10.70.1.109:8082 check inter 1s cookie web10102 maxconn 1200
+#----------------------------------
+listen stats 0.0.0.0:3133
+mode http
+option httpclose
+balance roundrobin
+stats uri /
+stats realm Haproxy\ Statistics ha
+stats refresh 10s
+stats auth admin:redhat
+########### EOF #################
+

@@ -1,0 +1,32 @@
+global
+  daemon
+  log 127.0.0.1 local0
+  log 127.0.0.1 local1 notice
+  maxconn 4096
+  tune.ssl.default-dh-param 2048
+
+defaults
+  log               global
+  retries           3
+  maxconn           2000
+  timeout connect   5s
+  timeout client    50s
+  timeout server    50s
+
+listen stats
+  bind 0.0.0.0:3133
+  balance
+  mode http
+  stats enable
+  stats auth admin:admin
+
+frontend phpfront
+  bind *:80
+  mode http
+  use_backend phpback
+
+backend phpback
+  balance roundrobin
+  mode http
+  option forwardfor
+  server php 192.168.10.2:80
