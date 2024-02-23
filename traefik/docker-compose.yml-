@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.11
+    environment:
+      - http_proxy=
+      - https_proxy=
+      - HTTPS_PROXY=
+      - HTTP_PROXY=
+      - no_proxy=blade6.ad.vayu.epfindia.gov.in,192.168.10.104,blade6,localhost,127.0.0.1,localaddress,.localdomain.com,172.17.0.11,172.30.1.1,docker-registry.default.svc.cluster.local,10.0.0.0/8
+      - NO_PROXY=blade6.ad.vayu.epfindia.gov.in,192.168.10.104,blade6,localhost,127.0.0.1,localaddress,.localdomain.com,172.17.0.11,172.30.1.1,docker-registry.default.svc.cluster.local,10.0.0.0/8
+ 
+    # Enables the web UI and tells Traefik to listen to docker
+    #command: --api.insecure=true --providers.docker
+    command:
+      - --providers.docker
+      -  --configFile=/etc/traefik/traefik.yml
+#      - --file
+#      - --file.filename=/rules.toml
+#      - --file.watch=true
+ #   network_mode: "bridge"
+    networks:
+      - default
+ 
+    ports:
+      # The HTTP port
+      - "84:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8084:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      #- ./rules.toml:/etc/traefik/rules.toml
+      - ./routes.yml:/etc/traefik/routes.yml
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+
+
+  whoami:
+    environment:
+      - http_proxy=
+      - https_proxy=
+      - HTTPS_PROXY=
+      - HTTP_PROXY=
+      - no_proxy=blade6.ad.vayu.epfindia.gov.in,192.168.10.104,blade6,localhost,127.0.0.1,localaddress,.localdomain.com,172.17.0.11,172.30.1.1,docker-registry.default.svc.cluster.local,10.0.0.0/8
+      - NO_PROXY=blade6.ad.vayu.epfindia.gov.in,192.168.10.104,blade6,localhost,127.0.0.1,localaddress,.localdomain.com,172.17.0.11,172.30.1.1,docker-registry.default.svc.cluster.local,10.0.0.0/8
+    image: "traefik/whoami"
+    container_name: "whoami"
+    hostname: "whoami"
+    ports:
+      - "85:80"
+    labels:
+      - "traefik.enable=false"
+
+networks:
+  default:
+     external: true
+     name: blade6_default

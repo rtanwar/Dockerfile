@@ -1,0 +1,7 @@
+
+tls:
+  certificates:
+    - certFile: "/etc/certs/blade6.crt"
+      keyFile: "/etc/certs/blade6.pem"
+      stores:
+        - default

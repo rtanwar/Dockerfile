@@ -1,0 +1,59 @@
+## traefik.yml
+log:
+  level: DEBUG #INFO
+
+# Docker configuration backend
+providers:
+#  file:
+#    filename: /etc/traefik/traefik.yml
+
+  docker:
+    defaultRule: "Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
+    exposedByDefault: false
+  file: # specify dynamic config folder
+    #directory: "/etc/traefik/"
+    #filename: /etc/traefik/tls.yml
+    filename: /etc/traefik/tls.toml
+    watch: true
+
+# API and dashboard configuration
+api:
+  insecure: true
+  dashboard: true
+  debug: true
+
+entryPoints:
+  web:
+    address: ":84"
+    http:
+      redirections:                           # HTTPS redirection (80 to 443)
+        entryPoint:
+          to: "web"                         # The target element
+          scheme: "https"                     # The redirection target scheme
+#  websecure:
+#    address: ":2443"
+
+#file:
+# filename: /etc/traefik/traefik.yml
+
+#
+#file:
+#  filename: /etc/traefik/routes.yml
+#  watch: true
+
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+       - certFile: /etc/certs/blade6.crt
+         keyFile: /etc/certs/blade6.pem
+  certificates:
+    - certFile: /etc/certs/blade6.crt
+      keyFile: /etc/certs/blade6.pem
+      stores:
+        - default
+
+
+metrics:
+  prometheus: {}    

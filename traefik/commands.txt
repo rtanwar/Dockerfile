@@ -1,0 +1,2 @@
+docker network create -d overlay --scope swarm jboss_stack_network --subnet 172.28.0.0/16 --attachable
+

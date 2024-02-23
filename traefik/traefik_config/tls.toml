@@ -1,0 +1,7 @@
+# Dynamic configuration
+
+[tls.stores]
+  [tls.stores.default]
+    [tls.stores.default.defaultCertificate]
+      certFile = "/etc/certs/blade6.crt"
+      keyFile  = "/etc/certs/blade6.pem"

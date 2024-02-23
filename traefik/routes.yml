@@ -1,0 +1,6 @@
+http:
+  routers:
+    hello:
+      rule: PathPrefix(`/hello`)
+      service: prometheus@docker
+

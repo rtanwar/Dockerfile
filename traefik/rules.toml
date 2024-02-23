@@ -1,0 +1,13 @@
+[frontends]
+  [frontends.webapp-host-front]
+  backend = "webapp-host-back"
+    [frontends.webapp-host-front.routes.webapp-host-hostroute]
+    rule = "Host:localhost"
+    [frontends.webapp-host-front.routes.webapp-host-pathroute]
+    rule = "PathPrefixStrip:/host"
+
+
+[backends]
+  [backends.webapp-host-back]
+    [backends.webapp-host-back.servers.host1]
+    url = "http://192.168.0.13:80" # IP come from "docker run --rm -ti alpine ip route | grep -i default"
