@@ -16,27 +16,43 @@ db_connection = mysql.connector.connect(
 
 # Connect to Redis
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
-
+def redis_cache():
+    hits = redis_client.info()['keyspace_hits']
+    # Get the number of failed lookups of keys
+    misses = redis_client.info()['keyspace_misses']
+    # Calculate and print the hit/miss ratio
+    if hits + misses > 0:
+        ratio = hits / (hits + misses)
+        return f'Hit/Miss ratio: {ratio}'
+    else:
+        return 'No data yet'
 
 @app.route('/print')
 def printMsg():
-    qry = 'SELECT * FROM your_table'
-    cache_hits = redis_client.get('keyspace_hits')
-    cache_misses = redis_client.get('keyspace_misses')
-    print("Cache hits:", int(cache_hits) if cache_hits else 0)
-    print("Cache misses:", int(cache_misses) if cache_misses else 0) 
+    import random
+    num = random.randint(0,2)
+    print(num)
+    qry = 'SELECT * FROM your_table  WHERE id=%s'
+    input=(num,)
+    #cache_hits = redis_client.get('keyspace_hits')
+    #cache_misses = redis_client.get('keyspace_misses')
+    #print("Cache hits:", int(cache_hits) if cache_hits else 0)
+    #print("Cache misses:", int(cache_misses) if cache_misses else 0) 
+    print(redis_cache())
     #print(redis_client.info())
     #app.logger.warning('testing warning log')
     #app.logger.error('testing error log')
     #app.logger.info('testing info log')
     cached_data = redis_client.get(qry)
+    
     if cached_data:
+        print('cached_data')
         return jsonify({'data': cached_data.decode('utf-8')})
         #return jsonify({'data': cached_data.decode('utf-8')},{'redis_client':redis_client.info()} )
     # If data not found in cache, fetch from MariaDB
     cursor = db_connection.cursor()
     
-    cursor.execute(qry)
+    cursor.execute(qry,input)
     data = cursor.fetchall()
     cursor.close()
     # Cache the fetched data in Redis
