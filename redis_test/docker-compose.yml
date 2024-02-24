@@ -13,11 +13,11 @@ services:
       retries: 30
       
   mariadb:
-    image: mariadb:latest
+    image: mariadb:11.3.2-jammy
     container_name: mariadb_container
     volumes:
         - './mariadb_data:/var/lib/mysql'
-    #    - './mariadb_entrypoint:/docker-entrypoint-initdb.d'
+        - './mariadb_entrypoint:/docker-entrypoint-initdb.d'
     ports:
       - "3306:3306"
     healthcheck:
@@ -28,15 +28,15 @@ services:
             retries: 10  
     environment:
     
-      MYSQL_ROOT_PASSWORD: examplepassword
-      MYSQL_DATABASE: exampledb      
-      MYSQL_USER: exampleuser
-      MYSQL_PASSWORD: examplepassword
-      #MARIADB_DATABASE: exampledb
-      #MARIADB_ROOT_USER: root
-      #MARIADB_ROOT_PASSWORD: examplepassword
-      #MARIADB_USER: exampleuser
-      #MARIADB_PASSWORD: examplepassword                  
+      #MYSQL_ROOT_PASSWORD: examplepassword
+      #MYSQL_DATABASE: exampledb      
+      #MYSQL_USER: exampleuser
+      #MYSQL_PASSWORD: examplepassword
+      MARIADB_DATABASE: exampledb
+      MARIADB_ROOT_USER: root
+      MARIADB_ROOT_PASSWORD: examplepassword
+      MARIADB_USER: exampleuser
+      MARIADB_PASSWORD: examplepassword                  
       
 
   python_app:
@@ -44,6 +44,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: python_container
+    command: tail -f /dev/null
+    volumes:
+       - '.:/app'    
     ports:
       - "5000:5000"
     depends_on:      

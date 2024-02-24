@@ -1,4 +1,4 @@
-create database exampledb;
+--create database exampledb;
 CREATE TABLE your_table(
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50),
