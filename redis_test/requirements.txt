@@ -1,4 +1,5 @@
 Flask
 redis
 mysql-connector-python
-
+flask_sqlalchemy
+pymysql

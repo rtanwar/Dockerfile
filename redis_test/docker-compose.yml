@@ -32,7 +32,7 @@ services:
       #MYSQL_DATABASE: exampledb      
       #MYSQL_USER: exampleuser
       #MYSQL_PASSWORD: examplepassword
-      MARIADB_DATABASE: exampledb
+      MARIADB_DATABASE: classicmodels
       MARIADB_ROOT_USER: root
       MARIADB_ROOT_PASSWORD: examplepassword
       MARIADB_USER: exampleuser
