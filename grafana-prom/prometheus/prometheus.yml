@@ -1,0 +1,26 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'jboss'
+    metrics_path: '/metrics'
+    static_configs:
+    - targets: ['jboss1:1234','jboss2:1234','jboss3:1234']  
+  - job_name: "apache"
+    metrics_path: '/metrics'    
+    static_configs:
+    - targets: ['apache:9117']
+  - job_name: "haproxy"
+    metrics_path: '/metrics'
+    static_configs:
+    - targets: ['haproxy:3133']
+  - job_name: "otel_java_agent"
+    metrics_path: '/metrics'
+    static_configs:
+    - targets: ['jboss1:9464','jboss2:9464','jboss3:9464']
+  - job_name: cadvisor
+    scrape_interval: 5s
+    static_configs:
+    - targets:
+      - cadvisor:8080

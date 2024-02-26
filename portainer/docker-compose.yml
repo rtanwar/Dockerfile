@@ -1,0 +1,19 @@
+version: '3.0'
+
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    ports:
+      - "9000:9000/tcp"
+    environment:
+      - TZ=Asia/Kolkata
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    labels:
+      - 'traefik.enable=false'
+      - 'traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)'
+      - 'traefik.tcp.routers.portainer.rule=HostSNI(`*`)'
+      - 'traefik.http.services.portainer.loadbalancer.server.port=9000' 

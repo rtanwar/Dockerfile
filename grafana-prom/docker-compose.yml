@@ -1,0 +1,89 @@
+version: '3'
+services:
+
+  prometheus:
+    env_file: .env
+    deploy:   
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 512M
+        reservations:
+          cpus: '0.01'
+          memory: 250M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+        
+    image: prom/prometheus
+    volumes:
+      - ./prometheus:/prometheus
+    #volumes:
+    #  - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/prometheus/prometheus.yml'
+    ports:
+      - "${PrometheusPort}:9090"
+    healthcheck:
+      #test: ["CMD", "curl", "-f", "http://localhost:9990"]
+      test: ["CMD","/bin/promtool","check","healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  grafana:
+    env_file: .env
+    deploy:   
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 512M
+        reservations:
+          cpus: '0.01'
+          memory: 250M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    image: grafana/grafana
+    ports:
+      - "${GrafanaPort}:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+    healthcheck:            
+      test: ["CMD", "curl","-f","localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  cadvisor:
+    env_file: .env
+    deploy:   
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 512M
+        reservations:
+          cpus: '0.01'
+          memory: 250M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s  
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      #- /var/lib/docker/:/var/lib/docker:ro
+      - /mnt/windows_docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /var/run/docker.sock:/var/run/docker.sock
