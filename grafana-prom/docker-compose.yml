@@ -78,12 +78,19 @@ services:
     restart: unless-stopped
     privileged: true
     ports:
-      - "8080:8080"
+      - "8080:8080"    
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
+      #- /:/rootfs:ro
+      - /var/run/:/var/run/:ro
+      - /sys:/sys:ro      
+      #mount -t drvfs '\\wsl.localhost\docker-desktop-data\data\docker' docker_data/
+      #for WSL
+      - ./docker_data:/rootfs/var/lib/docker:ro      
+      - ./docker_data/:/var/lib/docker/:ro  
+      #for linux
       #- /var/lib/docker/:/var/lib/docker:ro
-      - /mnt/windows_docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock                  
+      
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
