@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: python_container
-    command: tail -f /dev/null
+    #command: tail -f /dev/null
     volumes:
        - '.:/app'    
     ports:
@@ -54,4 +54,12 @@ services:
          condition: service_healthy
       redis:
          condition: service_healthy
+
+  locust:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./:/mnt/locust      
+    command: -f /mnt/locust/locustfile.py  -H http://python_app:5000
 

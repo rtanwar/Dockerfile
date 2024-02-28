@@ -2,4 +2,6 @@ Flask
 redis
 mysql-connector-python
 flask_sqlalchemy
+flask_mysqldb
 pymysql
+locust
