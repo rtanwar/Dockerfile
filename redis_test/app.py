@@ -5,6 +5,8 @@ import logging
 import sys
 import random
 import string
+import pickle
+
 
 app = Flask(__name__)
 #engine = db.create_engine('mysql+pymysql://exampleuser:examplepassword@mariadb/exampledb?charset=utf8mb4')
@@ -77,7 +79,8 @@ def try_cached_data(qry,parameters=None):
     cached_data = redis_client.get(query_key)    
     if cached_data:
         print('from CACHE')
-        data = cached_data.decode('utf-8')
+        #data = cached_data.decode('utf-8')
+        data = pickle.loads(cached_data)
     else:
         print('from DB')
         #cursor = db_connection.cursor(buffered=True)
@@ -87,7 +90,9 @@ def try_cached_data(qry,parameters=None):
         else:
             cursor.execute(qry)
         data = cursor.fetchall()        
-        redis_client.set(query_key, str(data))
+        pickled_object = pickle.dumps(data)
+        #redis_client.set(query_key, str(data))
+        redis_client.set(query_key, pickled_object)
         cursor.close()    
     return jsonify({'data': data})
 
