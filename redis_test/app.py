@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask import render_template, render_template_string, request, g
 import mysql.connector
 import redis
 import logging
@@ -6,7 +7,7 @@ import sys
 import random
 import string
 import pickle
-
+import time
 
 app = Flask(__name__)
 #engine = db.create_engine('mysql+pymysql://exampleuser:examplepassword@mariadb/exampledb?charset=utf8mb4')
@@ -94,7 +95,7 @@ def try_cached_data(qry,parameters=None):
         #redis_client.set(query_key, str(data))
         redis_client.set(query_key, pickled_object)
         cursor.close()    
-    return jsonify({'data': data})
+    return data
 
 
 def get_db_data(qry,parameters=None):    
@@ -107,9 +108,27 @@ def get_db_data(qry,parameters=None):
     data = cursor.fetchall()
     #redis_client.set(query_key, str(data))
     cursor.close()    
-    return jsonify({'data': data})
+    return data
 
+@app.before_request
+def before_request():
+   g.request_start_time = time.time()
+   g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
 
+@app.route('/')
+def index():
+    render_html =render_template_string("""
+                    <a href="{{url_for('delete_cache')}}">Delete Cache</a></p>
+                    <a href="{{url_for('get_data')}}">Try Cache Data</a></p>
+                    <a href="{{url_for('get_dbdata')}}">DB Data</a>""")
+    return render_html
+
+@app.route('/deletecache')
+def delete_cache():      
+    qry = 'SELECT customerNumber,customerName,SLEEP(0.01) sleep FROM customers'  
+    query_key  = f"{qry}"  
+    redis_client.delete(query_key)
+    return f'Cache for key: {query_key} deleted!'
 
 # Sample route to fetch data from MariaDB with Redis caching
 @app.route('/data')
@@ -125,7 +144,7 @@ def get_data(id=None):
         qry = 'SELECT customerNumber,customerName,SLEEP(0.01) sleep FROM customers'
         data = try_cached_data(qry)
     print(redis_cache_info())
-    return data
+    return jsonify({'time':g.request_time(),'data': data})
 
 @app.route('/dbdata')
 @app.route('/dbdata/<id>')
@@ -138,8 +157,8 @@ def get_dbdata(id=None):
         data = get_db_data(qry,(id,))
     else:
         qry = 'SELECT customerNumber,customerName,SLEEP(0.01) sleep FROM customers'
-        data = get_db_data(qry)    
-    return data
+        data = get_db_data(qry)            
+    return jsonify({'data': data,'time':g.request_time()})
 
 
     
