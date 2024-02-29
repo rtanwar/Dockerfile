@@ -61,10 +61,18 @@ services:
          condition: service_healthy
 
   locust:
-    image: locustio/locust
+    image: locustio/locust:2.23.1
     ports:
      - "8089:8089"
     volumes:
       - ./:/mnt/locust      
     command: -f /mnt/locust/locustfile.py  -H http://python_app:5000
+
+
+  locust-exporter:
+    image: containersol/locust_exporter
+    command: --locust.uri=http://locust:8089
+    ports:
+      - "9646:9646"
+
 

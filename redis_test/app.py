@@ -9,6 +9,7 @@ import string
 import pickle
 import time
 
+
 app = Flask(__name__)
 #engine = db.create_engine('mysql+pymysql://exampleuser:examplepassword@mariadb/exampledb?charset=utf8mb4')
 
@@ -24,6 +25,7 @@ app.config['MYSQL_HOST'] = 'mariadb'
 app.config['MYSQL_USER'] = 'exampleuser'
 app.config['MYSQL_PASSWORD'] = 'examplepassword'
 app.config['MYSQL_DB'] = 'classicmodels'
+app.config['CACHE_ENABLED'] = True
 mysql = MySQL(app)
 
 
@@ -77,7 +79,9 @@ def try_cached_data(qry,parameters=None):
     else:
         query_key  = f"{qry}"    
     #fetch data from cache
-    cached_data = redis_client.get(query_key)    
+    print('CACHE_ENABLED',app.config['CACHE_ENABLED'])
+    if app.config['CACHE_ENABLED']:
+        cached_data = redis_client.get(query_key)    
     if cached_data:
         print('from CACHE')
         #data = cached_data.decode('utf-8')
@@ -115,12 +119,27 @@ def before_request():
    g.request_start_time = time.time()
    g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
 
+
+@app.route('/disablecache')
+def cache_disable():
+    app.config['CACHE_ENABLED'] =False;
+    c = app.config['CACHE_ENABLED']
+    return f'Cache Disabled! {c}'
+
+@app.route('/enablecache')
+def cache_enable():
+    app.config['CACHE_ENABLED'] =True;
+    c = app.config['CACHE_ENABLED']
+    return f'Cache Enabled! {c}'
+
 @app.route('/')
 def index():
     render_html =render_template_string("""
                     <a href="{{url_for('delete_cache')}}">Delete Cache</a></p>
                     <a href="{{url_for('get_data')}}">Try Cache Data</a></p>
-                    <a href="{{url_for('get_dbdata')}}">DB Data</a>""")
+                    <a href="{{url_for('get_dbdata')}}">DB Data</a></p>
+                    <a href="{{url_for('cache_disable')}}">Disable Cache</a></p>
+                    <a href="{{url_for('cache_enable')}}">Enable Cache</a>""")
     return render_html
 
 @app.route('/deletecache')

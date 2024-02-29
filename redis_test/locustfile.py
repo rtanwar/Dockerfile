@@ -7,10 +7,10 @@ class WebsiteUser(HttpUser):
     def on_start(self):
         self.client.get("/data")
     
-    @task
-    def index(self):        
-        self.client.get("/data/1")
+    #@task
+    #def index(self):        
+    #    self.client.get("/data/1")
         
     @task
     def about(self):
-        self.client.get("/data/2")
+        self.client.get("/data")
