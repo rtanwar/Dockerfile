@@ -16,14 +16,21 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-        
+
+
     image: prom/prometheus
+    restart: unless-stopped
     volumes:
       - ./prometheus:/prometheus
-    #volumes:
-    #  - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+#      - '--storage.tsdb.retention.size=1GB'
+      - '--storage.tsdb.retention.time=1000d'
+
     ports:
       - "${PrometheusPort}:9090"
     healthcheck:
