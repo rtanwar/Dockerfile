@@ -1,0 +1,47 @@
+version: "3.2"
+services:
+  rabbitmq:
+    image: rabbitmq:3.13.0-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+#    volumes:
+#        - ./data/:/var/lib/rabbitmq/
+#        - ./log/:/var/log/rabbitmq
+
+  publisher:
+    build:
+      context: ./Publisher
+      dockerfile: Dockerfile
+    container_name: publisher
+    environment:
+      - rabbitmq=rabbitmq
+      - rabbitmq_port=5672
+    #command: celery -A tasks worker --loglevel=INFO
+    command: tail -f /dev/null
+    #ports:
+    #  - "5555:5555"
+    volumes:
+      - ./Publisher/:/app
+    depends_on:
+      - rabbitmq
+  
+  consumer:
+    build:
+      context: ./Consumer
+      dockerfile: Dockerfile
+    container_name: consumer
+    environment:
+      - rabbitmq=rabbitmq
+      - rabbitmq_port=5672
+    #command: celery -A tasks worker --loglevel=INFO
+    command: tail -f /dev/null
+    #ports:
+    #  - "5555:5555"
+    volumes:
+      - ./Consumer/:/app
+    depends_on:
+      - rabbitmq
+
+
