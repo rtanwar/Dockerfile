@@ -12,16 +12,18 @@ services:
 
   publisher:
     build:
+      args:
+        HTTP_PROXY: http://10.1.1.68:808
+        HTTPS_PROXY: http://10.1.1.68:808
+
       context: ./Publisher
       dockerfile: Dockerfile
     container_name: publisher
-    environment:
-      - rabbitmq=rabbitmq
-      - rabbitmq_port=5672
     #command: celery -A tasks worker --loglevel=INFO
     command: tail -f /dev/null
     #ports:
-    #  - "5555:5555"
+    #  - "5555:5555"    
+    env_file: .env
     volumes:
       - ./Publisher/:/app
     depends_on:
@@ -29,12 +31,14 @@ services:
   
   consumer:
     build:
+      args:
+        HTTP_PROXY: http://10.1.1.68:808
+        HTTPS_PROXY: http://10.1.1.68:808
+
       context: ./Consumer
       dockerfile: Dockerfile
+    env_file: .env
     container_name: consumer
-    environment:
-      - rabbitmq=rabbitmq
-      - rabbitmq_port=5672
     #command: celery -A tasks worker --loglevel=INFO
     command: tail -f /dev/null
     #ports:
