@@ -3,36 +3,47 @@ import os
 import sys
 import sqlite3
 import random
+import logging
+logger = logging.getLogger(__name__)
+
+#logger.debug('This message should go to the log file')
+#logger.info('So should this')
+#logger.warning('And this, too')
+#logger.error('And non-ASCII stuff, too, like Øresund and Malmö')
+
 
 rabbit_host = os.environ.get('rabbitmq_host', 'localhost')
 rabbit_port = os.environ.get('rabbitmq_port', '5672')
 rabbit_queue_name = os.environ.get('rabbitmq_queue', 'queue')
 rabbit_pass = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
 rabbit_user = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
+log_file = os.environ.get('LOG_PATH', 'app.log')
+level=os.environ.get('LOG_LEVEL', 'INFO').upper()
 credentials = pika.PlainCredentials(rabbit_user,rabbit_pass)
 connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host,rabbit_port,"/",credentials))
 channel = connection.channel()
-    # Create a connection to the database
+# Create a connection to the database
 
+logging.basicConfig(filename=log_file, level=level)
 
 def create_connection(database):
     """Create a database connection to the SQLite database specified by the database file."""
     db_connection = None
     try:
-        db_connection = sqlite3.connect(database)
-        print("Connection to SQLite database successful")
+        db_connection = sqlite3.connect(database)        
+        logger.debug('Connection to SQLite database successful')
         return db_connection
     except sqlite3.Error as e:
-        print(f"The error '{e}' occurred")
+        logger.error(f"The error '{e}' occurred")
 
 def create_table(db_connection, create_table_sql):
     """Create a table from the create_table_sql statement."""
     try:
         cursor = db_connection.cursor()
         cursor.execute(create_table_sql)
-        print("Table created successfully")
+        logger.debug("Table created successfully")
     except sqlite3.Error as e:
-        print(f"The error '{e}' occurred")
+        logger.error(f"The error '{e}' occurred")
 
 def insert_data(db_connection, insert_data_sql, data):
     """Insert data into the table."""
@@ -40,10 +51,10 @@ def insert_data(db_connection, insert_data_sql, data):
         cursor = db_connection.cursor()
         cursor.execute(insert_data_sql, data)
         db_connection.commit()        
-        print("Data inserted successfully")
+        logger.info("Data inserted successfully")
         return cursor.lastrowid
     except sqlite3.Error as e:
-        print(f"The error '{e}' occurred")
+        logger.error(f"The error '{e}' occurred")
 
 database_path = "/db/example.db"
 
@@ -80,9 +91,9 @@ def send_message(channel,rabbit_queue_name,message):
     # Close connection
         db_connection.close()
     else:
-        print("Unable to establish connection to the database")
+        logger.error("Unable to establish connection to the database")
     
-    print(f" [x] Sent {message}")
+    logger.info(f" [x] Sent {message}")
 
 message = 'Hello World!'
 if len(sys.argv) > 1:
