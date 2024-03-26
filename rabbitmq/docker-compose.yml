@@ -13,9 +13,9 @@ services:
 
   publisher:
     build:
-      args:
-        HTTP_PROXY: http://10.1.1.68:808
-        HTTPS_PROXY: http://10.1.1.68:808
+      #args:
+      #  HTTP_PROXY: http://10.1.1.68:808
+      #  HTTPS_PROXY: http://10.1.1.68:808
 
       context: ./Publisher
       dockerfile: Dockerfile
@@ -25,16 +25,19 @@ services:
     #ports:
     #  - "5555:5555"    
     env_file: .env
+    labels:
+        PROMTAIL: "true"
     volumes:
       - ./Publisher/:/app
+      - ./db:/db
     depends_on:
       - rabbitmq
   
   consumer:
     build:
-      args:
-        HTTP_PROXY: http://10.1.1.68:808
-        HTTPS_PROXY: http://10.1.1.68:808
+      #args:
+      #  HTTP_PROXY: http://10.1.1.68:808
+      #  HTTPS_PROXY: http://10.1.1.68:808
 
       context: ./Consumer
       dockerfile: Dockerfile
@@ -44,8 +47,11 @@ services:
     command: tail -f /dev/null
     #ports:
     #  - "5555:5555"
+    labels:
+        PROMTAIL: "true"
     volumes:
       - ./Consumer/:/app
+      - ./db:/db
     depends_on:
       - rabbitmq
 
