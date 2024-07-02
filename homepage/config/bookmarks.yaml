@@ -1,0 +1,17 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/bookmarks
+
+
+  
+- Social:
+    - Reddit:
+        - abbr: RE
+          href: https://reddit.com/
+    - Twitter:
+        - abbr: TW
+          href: https://twitter.com/
+    - Whatsapp:
+        - abbr: WT
+          href: https://web.whatsapp.com/
+

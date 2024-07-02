@@ -1,0 +1,93 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/services
+
+
+- Service Containers:
+    - Portainer:
+       icon: portainer.png
+       href: "http://10.1.1.55:9000/"
+       description: Portainer
+       server: Blade6 # The docker server that was configured
+       container: portainer-portainer-1 # The name of the container you'd like to connect
+       showStats: true
+    - Uptime-Kuma:
+       icon: uptime-kuma.png
+       href: "http://10.1.1.55:3001/status/"
+       description: Uptime-Kuma
+       server: Blade6 # The docker server that was configured
+       container: uptime-kuma # The name of the container you'd like to connect
+       showStats: true
+       widget:
+         type: uptimekuma
+         url: http://10.1.1.55:3001
+         slug: default
+    - Grafana:
+       icon: grafana.png
+       href: "http://10.1.1.55:3000/"
+       description: Grafana-Dashboard
+       server: Blade6 # The docker server that was configured
+       container: grafana-grafana-1 # The name of the container you'd like to connect
+       showStats: true
+       widget:
+          type: grafana
+          url: http://10.1.1.55:3000
+          username: admin
+          password: admin1
+
+- Utilities:
+    - Stirling PDF:
+        icon: stirling-pdf.png
+        href: https://10.1.1.55:9443/
+        description: Stirling PDF
+    - Nextcloud :
+        icon: nextcloud.png
+        href: https://10.1.1.55/
+        description: Nextcloud
+    - Inventory :
+        icon: /icons/inventory.png
+        href: http://10.1.1.55:5001/
+        description: Inventory and Contracts
+    - NIC Email :
+        icon: /icons/nic_email.png
+        href: https://email.gov.in/
+        description: NIC Email
+    - E-Office :
+        icon: /icons/eOff_Logo.jpg
+        href: https://eoffice.epfindia.gov.in/
+        description: E-Office (EPFO)
+    - IT-Tools:
+        icon: /icons/it-tools.png
+        href: http://10.1.1.55:8086/
+        description: IT - TOOLS 
+
+
+
+- Monitoring:
+    - RHVM-Grafana-DC:
+        icon: grafana.png
+        href: https://rhevm.prithvi.epfindia.gov.in/ovirt-engine-grafana/
+        description: RHVM GRAFANA (DC)
+    - AppDynamics:
+        icon: /icons/appdynamics.ico
+        href: http://10.60.14.30/
+        description: AppDynamics
+    - Grafana-DC:
+        icon: grafana.png
+        href: 10.1.201.98:3000/
+        description: GRAFANA (DC)
+
+
+- Programming:
+    - Jupyter Notebook:
+        icon: jupyter.png
+        href: http://10.1.1.55:8888/
+        description: Jupyter Notebook
+    - Gitlab:
+        icon: gitlab.png
+        href: http://10.1.1.32/
+        description: Gitlab
+    - Superset:
+        icon: /icons/superset.png
+        href: http://10.1.1.55:8088/
+        description: Apache Superset 
