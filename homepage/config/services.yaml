@@ -74,7 +74,7 @@
         description: AppDynamics
     - Grafana-DC:
         icon: grafana.png
-        href: 10.1.201.98:3000/
+        href: http://10.1.201.98:3000/
         description: GRAFANA (DC)
 
 
